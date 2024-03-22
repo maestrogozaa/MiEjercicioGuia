@@ -7,6 +7,12 @@
 #include <stdio.h>
 #include <pthread.h>
 
+int contadorServicios;
+
+// Estructura necesaria para el acceso excluyente
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void *AtenderCliente (void *socket)
 {
 	int sock_conn;
@@ -43,7 +49,7 @@ void *AtenderCliente (void *socket)
 		// Ya tenemos el c?digo de la petici?n
 		char nombre[20];
 		
-		if (codigo !=0)
+		if ((codigo !=0) && (codigo!=6))
 		{
 			p = strtok( NULL, "/");
 			
@@ -54,6 +60,9 @@ void *AtenderCliente (void *socket)
 		
 		if (codigo ==0) //petici?n de desconexi?n
 			terminar=1;
+		
+		else if (codigo ==6) 
+			sprintf (respuesta,"%d",contadorServicios);
 		
 		else if (codigo ==1) //piden la longitd del nombre
 			sprintf (respuesta,"%d",strlen (nombre));
@@ -113,6 +122,13 @@ void *AtenderCliente (void *socket)
 			// Enviamos respuesta
 			write (sock_conn,respuesta, strlen(respuesta));
 		}
+		if ((codigo ==1) || (codigo ==2) || (codigo ==3) || (codigo ==4) || (codigo ==5))
+		{
+			pthread_mutex_lock( &mutex ); // No me interrumpas ahora
+			contadorServicios = contadorServicios + 1;
+			pthread_mutex_unlock( &mutex ); // Ya puedes interrumpirme
+		}
+		
 	}
 	// Se acabo el servicio para este cliente
 	close(sock_conn); 
@@ -140,13 +156,14 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// establecemos el puerto de escucha
-	serv_adr.sin_port = htons(9080);
+	serv_adr.sin_port = htons(9300);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
 	
 	if (listen(sock_listen, 3) < 0)
 		printf("Error en el Listen");
 	
+	contadorServicios = 0;
 	int i;
 	int sockets[100];
 	pthread_t thread;

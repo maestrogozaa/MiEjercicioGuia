@@ -30,7 +30,7 @@ namespace WindowsFormsApplication1
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse("192.168.56.102");
-            IPEndPoint ipep = new IPEndPoint(direc, 9080);
+            IPEndPoint ipep = new IPEndPoint(direc, 9300);
             
 
             //Creamos el socket 
@@ -141,6 +141,21 @@ namespace WindowsFormsApplication1
             this.BackColor = Color.Gray;
             server.Shutdown(SocketShutdown.Both);
             server.Close();
-        }     
+        }
+
+        private void nServiciosButton_Click(object sender, EventArgs e)
+        {
+            // Pedir número de servicios realizados
+            string mensaje = "6/";
+
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+
+            //Recibimos la respuesta del servidor
+            byte[] msg2 = new byte[80];
+            server.Receive(msg2);
+            mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+            nServiciosLabel.Text = mensaje;
+        }
     }
 }

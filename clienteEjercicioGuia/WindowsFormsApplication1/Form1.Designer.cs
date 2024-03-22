@@ -41,6 +41,8 @@
             this.alturaBox = new System.Windows.Forms.TextBox();
             this.Bonito = new System.Windows.Forms.RadioButton();
             this.button3 = new System.Windows.Forms.Button();
+            this.nServiciosButton = new System.Windows.Forms.Button();
+            this.nServiciosLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -199,11 +201,35 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
+            // nServiciosButton
+            // 
+            this.nServiciosButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nServiciosButton.Location = new System.Drawing.Point(598, 156);
+            this.nServiciosButton.Margin = new System.Windows.Forms.Padding(4);
+            this.nServiciosButton.Name = "nServiciosButton";
+            this.nServiciosButton.Size = new System.Drawing.Size(170, 76);
+            this.nServiciosButton.TabIndex = 11;
+            this.nServiciosButton.Text = "¿Cuántos servicios?";
+            this.nServiciosButton.UseVisualStyleBackColor = true;
+            this.nServiciosButton.Click += new System.EventHandler(this.nServiciosButton_Click);
+            // 
+            // nServiciosLabel
+            // 
+            this.nServiciosLabel.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.nServiciosLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nServiciosLabel.Location = new System.Drawing.Point(637, 244);
+            this.nServiciosLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.nServiciosLabel.Name = "nServiciosLabel";
+            this.nServiciosLabel.Size = new System.Drawing.Size(99, 43);
+            this.nServiciosLabel.TabIndex = 12;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(988, 692);
+            this.ClientSize = new System.Drawing.Size(858, 692);
+            this.Controls.Add(this.nServiciosLabel);
+            this.Controls.Add(this.nServiciosButton);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button1);
@@ -232,6 +258,8 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.RadioButton Palindromo;
         private System.Windows.Forms.RadioButton Mayusculas;
+        private System.Windows.Forms.Button nServiciosButton;
+        private System.Windows.Forms.Label nServiciosLabel;
     }
 }
 
