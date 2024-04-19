@@ -13,6 +13,9 @@ int contadorServicios;
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+int i;
+int sockets[100];
+
 void *AtenderCliente (void *socket)
 {
 	int sock_conn;
@@ -61,19 +64,16 @@ void *AtenderCliente (void *socket)
 		if (codigo ==0) //petici?n de desconexi?n
 			terminar=1;
 		
-		else if (codigo ==6) 
-			sprintf (respuesta,"%d",contadorServicios);
-		
 		else if (codigo ==1) //piden la longitd del nombre
-			sprintf (respuesta,"%d",strlen (nombre));
+			sprintf (respuesta,"1/%d",strlen (nombre));
 		
 		else if (codigo ==2)
 		{
 			// quieren saber si el nombre es bonito
 			if((nombre[0]=='M') || (nombre[0]=='S'))
-				strcpy (respuesta,"SI");
+				strcpy (respuesta,"2/SI");
 			else
-				strcpy (respuesta,"NO");
+				strcpy (respuesta,"2/NO");
 		}
 		
 		else if (codigo ==3)				
@@ -82,9 +82,9 @@ void *AtenderCliente (void *socket)
 			p = strtok( NULL, "/");
 			float altura =  atof (p);
 			if (altura > 1.70)
-				sprintf (respuesta, "%s: eres alto",nombre);
+				sprintf (respuesta, "3/%s: eres alto",nombre);
 			else
-				sprintf (respuesta, "%s: eresbajo",nombre);
+				sprintf (respuesta, "3/%s: eresbajo",nombre);
 		}
 		
 		else if (codigo ==4)
@@ -99,10 +99,10 @@ void *AtenderCliente (void *socket)
 						palindromo = 0;
 			}
 			if (palindromo ==0)
-				sprintf (respuesta, "Tu nombre NO es palindromo");
+				sprintf (respuesta, "4/Tu nombre NO es palindromo");
 				
 			else
-				sprintf (respuesta, "Tu nombre SI es palindromo");
+				sprintf (respuesta, "4/Tu nombre SI es palindromo");
 				
 		}
 		
@@ -112,7 +112,7 @@ void *AtenderCliente (void *socket)
 				{
 					nombre[i] = toupper(nombre[i]);
 				}
-				sprintf (respuesta, "Tu nombre en mayusculas es: %s", nombre);
+				sprintf (respuesta, "5/Tu nombre en mayusculas es: %s", nombre);
 			}
 			
 		if (codigo !=0)
@@ -127,8 +127,14 @@ void *AtenderCliente (void *socket)
 			pthread_mutex_lock( &mutex ); // No me interrumpas ahora
 			contadorServicios = contadorServicios + 1;
 			pthread_mutex_unlock( &mutex ); // Ya puedes interrumpirme
-		}
-		
+			
+			// Notificar a todos los clientes conectados
+			char notificacion[20];
+			sprintf (notificacion, "6/%d", contadorServicios);
+			int j;
+			for (j=0; j<i ; j++)
+				write (sockets[j],notificacion,strlen(notificacion));			
+		}		
 	}
 	// Se acabo el servicio para este cliente
 	close(sock_conn); 
@@ -164,8 +170,7 @@ int main(int argc, char *argv[])
 		printf("Error en el Listen");
 	
 	contadorServicios = 0;
-	int i;
-	int sockets[100];
+	
 	pthread_t thread;
 	i=0;
 	// Bucle para atender a 5 clientes
@@ -181,8 +186,6 @@ int main(int argc, char *argv[])
 		// Crear thead y decirle lo que tiene que hacer
 		
 		pthread_create (&thread, NULL, AtenderCliente,&sockets[i]);
-		i=i+1;
-		
-	}	
-	
+		i=i+1;		
+	}		
 }
