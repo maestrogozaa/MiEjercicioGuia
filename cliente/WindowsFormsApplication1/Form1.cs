@@ -16,10 +16,11 @@ namespace WindowsFormsApplication1
     {
         Socket server;
         Thread atender;
+
+        delegate void DelegadoParaEscribir(string mensaje);
         public Form1()
         {
             InitializeComponent();
-            CheckForIllegalCrossThreadCalls = false;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -37,7 +38,7 @@ namespace WindowsFormsApplication1
                 server.Receive(msg2);
                 string[] trozos = Encoding.ASCII.GetString(msg2).Split('/');
                 int codigo = Convert.ToInt32(trozos[0]);
-                string mensaje = mensaje = trozos[1].Split('\0')[0]; 
+                string mensaje = trozos[1].Split('\0')[0]; 
 
                 switch (codigo)
                 {
@@ -71,10 +72,16 @@ namespace WindowsFormsApplication1
                         break;
 
                     case 6: // Recibimos notificación
-                        nServiciosLabel.Text = mensaje;
+                        DelegadoParaEscribir delegado = new DelegadoParaEscribir(PonContador);
+                        nServiciosLabel.Invoke(delegado, new object[] {mensaje});
                         break;
                 }
             }
+        }
+
+        public void PonContador(string contador)
+        {
+            nServiciosLabel.Text = contador;
         }
 
         private void button1_Click(object sender, EventArgs e)
