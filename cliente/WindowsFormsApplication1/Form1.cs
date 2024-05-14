@@ -18,6 +18,8 @@ namespace WindowsFormsApplication1
         Thread atender;
 
         delegate void DelegadoParaEscribir(string mensaje);
+
+        List<Form2> formularios = new List<Form2>();
         public Form1()
         {
             InitializeComponent();
@@ -38,40 +40,43 @@ namespace WindowsFormsApplication1
                 server.Receive(msg2);
                 string[] trozos = Encoding.ASCII.GetString(msg2).Split('/');
                 int codigo = Convert.ToInt32(trozos[0]);
-                string mensaje = trozos[1].Split('\0')[0]; 
+                string mensaje;                
+                int nForm;
 
                 switch (codigo)
                 {
                     case 1: // Longitud nombre
-                        mensaje = trozos[1].Split('\0')[0];
-                        MessageBox.Show("La longitud de tu nombre es: " + mensaje);
+                        nForm = Convert.ToInt32(trozos[1]);
+                        mensaje = trozos[2].Split('\0')[0];
+                        formularios[nForm].TomaRespuesta1(mensaje);
                         break;
 
                     case 2: // Nombre es bonito
-                        mensaje = trozos[1].Split('\0')[0];
-
-                        if (mensaje == "SI")
-                            MessageBox.Show("Tu nombre ES bonito.");
-                        else
-                            MessageBox.Show("Tu nombre NO bonito. Lo siento.");
+                        nForm = Convert.ToInt32(trozos[1]);
+                        mensaje = trozos[2].Split('\0')[0];
+                        formularios[nForm].TomaRespuesta2(mensaje);
                         break;
 
                     case 3: // Si soy alto
-                        mensaje = trozos[1].Split('\0')[0];
-                        MessageBox.Show(mensaje);
+                        nForm = Convert.ToInt32(trozos[1]);
+                        mensaje = trozos[2].Split('\0')[0];
+                        formularios[nForm].TomaRespuesta3(mensaje);
                         break;
 
                     case 4:// Si mi nombre es palíndromo
-                        mensaje = trozos[1].Split('\0')[0];
-                        MessageBox.Show(mensaje);
+                        nForm = Convert.ToInt32(trozos[1]);
+                        mensaje = trozos[2].Split('\0')[0];
+                        formularios[nForm].TomaRespuesta4(mensaje);
                         break;
 
                     case 5: // Mi nombre en mayúsculas
-                        mensaje = trozos[1].Split('\0')[0];
-                        MessageBox.Show(mensaje);
+                        nForm = Convert.ToInt32(trozos[1]);
+                        mensaje = trozos[2].Split('\0')[0];
+                        formularios[nForm].TomaRespuesta5(mensaje);
                         break;
 
                     case 6: // Recibimos notificación
+                        mensaje = trozos[1].Split('\0')[0];
                         DelegadoParaEscribir delegado = new DelegadoParaEscribir(PonContador);
                         nServiciosLabel.Invoke(delegado, new object[] {mensaje});
                         break;
@@ -113,55 +118,41 @@ namespace WindowsFormsApplication1
 
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if (Longitud.Checked)
-            {
-                string mensaje = "1/" + nombre.Text;
-                // Enviamos al servidor el nombre tecleado
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
-            
-            }
-            else if (Bonito.Checked)
-            {
-                string mensaje = "2/" + nombre.Text;
-                // Enviamos al servidor el nombre tecleado
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
-
-            }
-            else if (Alto.Checked)
-            {
-                // Enviamos nombre y altura
-                string mensaje = "3/" + nombre.Text + "/" + alturaBox.Text;
-                // Enviamos al servidor el nombre tecleado
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
-            }
-            else if (Palindromo.Checked)
-            {
-                // Enviamos nombre
-                string mensaje = "4/" + nombre.Text;
-                // Enviamos al servidor el nombre tecleado
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
-            }    
-            else if (Mayusculas.Checked)
-            {
-                // Enviamos nombre
-                string mensaje = "5/" + nombre.Text;
-                // Enviamos al servidor el nombre tecleado
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
-            }        
-        }
-
         private void button3_Click(object sender, EventArgs e)
         {
             //Mensaje de desconexión
             string mensaje = "0/";
         
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+
+            // Nos desconectamos
+            atender.Abort();
+            this.BackColor = Color.Gray;
+            server.Shutdown(SocketShutdown.Both);
+            server.Close();
+        }
+
+        private void PonerEnMarchaFormulario()
+        {
+            int cont = formularios.Count;
+            Form2 f = new Form2(cont, server);
+            formularios.Add(f);
+            f.ShowDialog();
+        }
+
+        private void nuevoFormularioBtn_Click(object sender, EventArgs e)
+        {
+            ThreadStart ts = delegate { PonerEnMarchaFormulario(); };
+            Thread T = new Thread(ts);
+            T.Start();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //Mensaje de desconexión
+            string mensaje = "0/";
+
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
 

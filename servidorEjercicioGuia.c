@@ -49,11 +49,14 @@ void *AtenderCliente (void *socket)
 		// vamos a ver que quieren
 		char *p = strtok( peticion, "/");
 		int codigo =  atoi (p);
+		int numForm;
 		// Ya tenemos el c?digo de la petici?n
 		char nombre[20];
 		
-		if ((codigo !=0) && (codigo!=6))
+		if (codigo !=0)
 		{
+			p = strtok( NULL, "/");
+			numForm =  atoi (p);
 			p = strtok( NULL, "/");
 			
 			strcpy (nombre, p);
@@ -65,15 +68,15 @@ void *AtenderCliente (void *socket)
 			terminar=1;
 		
 		else if (codigo ==1) //piden la longitd del nombre
-			sprintf (respuesta,"1/%d",strlen (nombre));
+			sprintf (respuesta,"1/%d/%d",numForm,strlen (nombre));
 		
 		else if (codigo ==2)
 		{
 			// quieren saber si el nombre es bonito
 			if((nombre[0]=='M') || (nombre[0]=='S'))
-				strcpy (respuesta,"2/SI");
+				sprintf (respuesta,"2/%d/SI", numForm);
 			else
-				strcpy (respuesta,"2/NO");
+				sprintf (respuesta,"2/%d/NO", numForm);
 		}
 		
 		else if (codigo ==3)				
@@ -82,9 +85,9 @@ void *AtenderCliente (void *socket)
 			p = strtok( NULL, "/");
 			float altura =  atof (p);
 			if (altura > 1.70)
-				sprintf (respuesta, "3/%s: eres alto",nombre);
+				sprintf (respuesta, "3/%d/%s: eres alto",numForm,nombre);
 			else
-				sprintf (respuesta, "3/%s: eresbajo",nombre);
+				sprintf (respuesta, "3/%d/%s: eresbajo",numForm,nombre);
 		}
 		
 		else if (codigo ==4)
@@ -99,10 +102,10 @@ void *AtenderCliente (void *socket)
 						palindromo = 0;
 			}
 			if (palindromo ==0)
-				sprintf (respuesta, "4/Tu nombre NO es palindromo");
+				sprintf (respuesta, "4/%d/Tu nombre NO es palindromo", numForm);
 				
 			else
-				sprintf (respuesta, "4/Tu nombre SI es palindromo");
+				sprintf (respuesta, "4/%d/Tu nombre SI es palindromo", numForm);
 				
 		}
 		
@@ -112,7 +115,7 @@ void *AtenderCliente (void *socket)
 				{
 					nombre[i] = toupper(nombre[i]);
 				}
-				sprintf (respuesta, "5/Tu nombre en mayusculas es: %s", nombre);
+				sprintf (respuesta, "5/%d/Tu nombre en mayusculas es: %s",numForm,nombre);
 			}
 			
 		if (codigo !=0)
